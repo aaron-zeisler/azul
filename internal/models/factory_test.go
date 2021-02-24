@@ -8,7 +8,7 @@ import (
 	"github.com/aaron-zeisler/azul/internal/testutils"
 )
 
-func TestFactory_DrawTiles(t *testing.T) {
+func TestFactory_DrawAllTilesByColor(t *testing.T) {
 	type state struct {
 		tiles []Tile
 		color TileColor
@@ -83,7 +83,7 @@ func TestFactory_DrawTiles(t *testing.T) {
 				f.AddTile(tile)
 			}
 
-			result, err := f.DrawTiles(tc.state.color)
+			result, err := f.DrawAllTilesByColor(tc.state.color)
 
 			assert.So(err, testutils.ShouldEqualError, tc.expected.err)
 			if tc.expected.err == nil {

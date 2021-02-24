@@ -30,7 +30,7 @@ type Game struct {
 	Config           GameConfig
 	Players          map[int]Player
 	Factories        map[int]*Factory
-	CenterOfTheTable TileCollection
+	CenterOfTheTable *TileCollection
 	Bag              *Bag
 }
 
@@ -77,7 +77,10 @@ func (g *Game) InitFactories() {
 	for i := 0; i < numFactories; i++ {
 		factory := NewFactory()
 		for t := 0; t < g.Config.TilesPerFactory; t++ {
-			tile, _ := g.Bag.DrawTile()
+			tile, err := g.Bag.DrawRandomTile()
+			if err != nil {
+				panic(err)
+			}
 			factory.AddTile(tile)
 		}
 

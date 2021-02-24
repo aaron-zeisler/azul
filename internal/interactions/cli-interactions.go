@@ -11,29 +11,37 @@ import (
 )
 
 type DrawFactoryTilesResponse struct {
-	FactoryNumber int
-	TileColor     models.TileColor
+	DrawSourceType models.DrawSourceType
+	FactoryNumber  int
+	TileColor      models.TileColor
 }
 
 func PromptToDrawFactoryTiles() (DrawFactoryTilesResponse, error) {
 	response := DrawFactoryTilesResponse{}
 
-	//TODO: Allow the player to draw from the center of the table
-
-	factoryNumber, err := PromptForInt("Which factory would you like to draw from?")
+	drawSourceTypeStr, err := PromptForString("Would you like to draw from a factory or from the center of the table (type 'factory' or 'center')?")
 	if err != nil {
 		return response, err
+	}
+	//TODO: Validate this
+	response.DrawSourceType = models.DrawSourceType(drawSourceTypeStr)
+
+	if response.DrawSourceType == models.DrawSourceFactory {
+		factoryNumber, err := PromptForInt("Which factory would you like to draw from?")
+		if err != nil {
+			return response, err
+		}
+
+		response.FactoryNumber = factoryNumber
 	}
 
 	tileColor, err := PromptForString("Which color would you like to draw?")
 	if err != nil {
 		return response, err
 	}
+	response.TileColor = models.TileColor(tileColor)
 
-	return DrawFactoryTilesResponse{
-		FactoryNumber: factoryNumber,
-		TileColor:     models.TileColor(tileColor),
-	}, nil
+	return response, nil
 }
 
 type NewPlayersResponse struct {

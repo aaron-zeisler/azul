@@ -15,3 +15,7 @@ clean:
 .PHONY: tidy
 tidy:
 	@go mod tidy
+
+.PHONY: run
+run: build
+	@./cmd/azul-cli/azul-cli

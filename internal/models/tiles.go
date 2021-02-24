@@ -10,10 +10,10 @@ type TileCollection struct {
 	Tiles []Tile
 }
 
-func NewTileCollection() TileCollection {
+func NewTileCollection() *TileCollection {
 	rand.Seed(time.Now().UnixNano())
 
-	return TileCollection{
+	return &TileCollection{
 		Tiles: make([]Tile, 0),
 	}
 }
@@ -113,4 +113,15 @@ const (
 
 func (t TileColor) String() string {
 	return string(t)
+}
+
+type DrawSourceType string
+
+const (
+	DrawSourceFactory DrawSourceType = "factory"
+	DrawSourceCenter  DrawSourceType = "center"
+)
+
+type DrawSource interface {
+	DrawAllTilesByColor(color TileColor) ([]Tile, error)
 }
