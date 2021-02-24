@@ -24,7 +24,7 @@ func main() {
 		models.WithConfig(config),
 		models.WithPlayers(playerSetup.Players))
 
-	game.DisplayState()
+	interactions.DisplayGameState(game)
 	fmt.Printf("Number of tiles left in the bag: %d\n", game.Bag.TileCount())
 
 	// Draw tiles from a factory
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	fmt.Println("After drawing tiles:")
-	game.DisplayState()
+	interactions.DisplayGameState(game)
 
 	//TODO: Put the drawn tiles onto the player's game board (!!!)
 }

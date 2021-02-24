@@ -102,3 +102,21 @@ func PromptForInt(prompt string) (int, error) {
 
 	return answer, nil
 }
+
+func DisplayGameState(game *models.Game) {
+	// Print out the players and their boards
+	fmt.Println("PLAYERS:")
+	for i := 0; i < len(game.Players); i++ {
+		fmt.Printf("Player #%d: %s\n", i, game.Players[i])
+	}
+	fmt.Println()
+
+	// Print out the factories and their tiles
+	fmt.Println("FACTORIES:")
+	for i := 0; i < len(game.Factories); i++ {
+		fmt.Printf("Factory #%d: %s\n", i, game.Factories[i])
+	}
+	// Print the tiles in center of the table
+	fmt.Printf("Center of the Table: %s\n", game.CenterOfTheTable.Tiles)
+	fmt.Println()
+}

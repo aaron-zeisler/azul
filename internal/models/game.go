@@ -1,7 +1,5 @@
 package models
 
-import "fmt"
-
 type GameConfig struct {
 	TileColors         []TileColor
 	TilesPerColor      int
@@ -97,22 +95,4 @@ func (g *Game) InitBag() {
 			tileCounter += 1
 		}
 	}
-}
-
-func (g *Game) DisplayState() {
-	// Print out the players and their boards
-	fmt.Println("PLAYERS:")
-	for i := 0; i < len(g.Players); i++ {
-		fmt.Printf("Player #%d: %s\n", i, g.Players[i])
-	}
-	fmt.Println()
-
-	// Print out the factories and their tiles
-	fmt.Println("FACTORIES:")
-	for i := 0; i < len(g.Factories); i++ {
-		fmt.Printf("Factory #%d: %s\n", i, g.Factories[i])
-	}
-	// Print the tiles in center of the table
-	fmt.Printf("Center of the Table: %s\n", g.CenterOfTheTable.Tiles)
-	fmt.Println()
 }
