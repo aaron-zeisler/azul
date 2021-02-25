@@ -1,27 +1,60 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
 )
 
 type TileCollection struct {
-	Tiles []Tile
+	Tiles        []Tile
+	errorHandler TileCollectionErrorHandler
 }
 
-func NewTileCollection() *TileCollection {
+func NewTileCollection(opts ...NewTileCollectionOption) *TileCollection {
 	rand.Seed(time.Now().UnixNano())
 
-	return &TileCollection{
-		Tiles: make([]Tile, 0),
+	tc := &TileCollection{
+		Tiles:        make([]Tile, 0),
+		errorHandler: defaultTileCollectionErrorHandler{},
 	}
+
+	for _, opt := range opts {
+		opt(tc)
+	}
+
+	return tc
+}
+
+type NewTileCollectionOption func(*TileCollection)
+
+func WithErrorHandler(errorHandler TileCollectionErrorHandler) NewTileCollectionOption {
+	return func(tc *TileCollection) {
+		tc.errorHandler = errorHandler
+	}
+}
+
+type TileCollectionErrorHandler interface {
+	HandleError(err error) error
+}
+
+type defaultTileCollectionErrorHandler struct{}
+
+func (eh defaultTileCollectionErrorHandler) HandleError(err error) error {
+	if err != nil {
+		if errors.Is(err, NoTilesError{}) || errors.Is(err, NoTilesOfColorError{}) {
+			return InvalidActionError{Message: err.Error()}
+		}
+	}
+
+	return err
 }
 
 func (tc *TileCollection) DrawRandomTile() (Tile, error) {
 	tileCount := len(tc.Tiles)
 	if tileCount == 0 {
-		return Tile{}, InvalidActionError{Message: "There are no tiles"}
+		return Tile{}, tc.errorHandler.HandleError(NoTilesError{})
 	}
 
 	// Choose a random tile from the slice
@@ -51,7 +84,7 @@ func (tc *TileCollection) DrawAllTilesByColor(color TileColor) ([]Tile, error) {
 	result := make([]Tile, 0)
 
 	if len(tc.Tiles) == 0 {
-		return result, NoTilesError{}
+		return result, tc.errorHandler.HandleError(NoTilesError{})
 		//return result, InvalidActionError{Message: "There are no tiles"}
 	}
 
@@ -66,8 +99,7 @@ func (tc *TileCollection) DrawAllTilesByColor(color TileColor) ([]Tile, error) {
 	}
 
 	if len(result) == 0 {
-		return result, NoTilesOfColorError{}
-		//return result, InvalidActionError{Message: fmt.Sprintf("There are no %s tiles", color)}
+		return result, tc.errorHandler.HandleError(NoTilesOfColorError{Color: color})
 	}
 
 	return result, nil
@@ -79,6 +111,19 @@ func (tc *TileCollection) AddTile(t Tile) {
 
 func (tc *TileCollection) TileCount() int {
 	return len(tc.Tiles)
+}
+
+func (tc *TileCollection) HasTiles() bool {
+	return len(tc.Tiles) > 0
+}
+
+func (tc *TileCollection) HasTilesOfColor(color TileColor) bool {
+	for _, tile := range tc.Tiles {
+		if tile.Color == color {
+			return true
+		}
+	}
+	return false
 }
 
 func (tc *TileCollection) String() string {

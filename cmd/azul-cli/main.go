@@ -43,7 +43,11 @@ func main() {
 		drawDisplay = fmt.Sprintf("factory #%d", response.FactoryNumber)
 	}
 	fmt.Printf("Drawing %s tiles from %s\n", response.TileColor, drawDisplay)
-	drawSource.DrawAllTilesByColor(response.TileColor)
+	_, err = drawSource.DrawAllTilesByColor(response.TileColor)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	// Put the rest of the factory's tiles in the center of the table
 	if response.DrawSourceType == models.DrawSourceFactory {

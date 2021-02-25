@@ -8,20 +8,18 @@ type Bag struct {
 
 func NewBag() *Bag {
 	return &Bag{
-		TileCollection: NewTileCollection(),
+		TileCollection: NewTileCollection(WithErrorHandler(bagErrorHandler{})),
 	}
 }
 
-// DrawTile draws a random tile from the bag.  The tile is removed from the bag.
-func (b *Bag) DrawRandomTile() (Tile, error) {
-	result, err := b.TileCollection.DrawRandomTile()
+type bagErrorHandler struct{}
+
+func (eh bagErrorHandler) HandleError(err error) error {
 	if err != nil {
 		if errors.Is(err, NoTilesError{}) {
-			return result, InvalidActionError{Message: "The bag is empty"}
-		} else {
-			return result, err
+			return InvalidActionError{Message: "The bag is empty"}
 		}
 	}
 
-	return result, err
+	return err
 }
