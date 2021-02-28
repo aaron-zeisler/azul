@@ -172,15 +172,16 @@ func printPatternLines(board *models.Board) {
 	}
 }
 
-func printFloor(floor []models.Tile) {
+func printFloor(floor []models.FloorSpace) {
 	lineString := "Floor:"
 
 	for tile := 0; tile < models.NumFloorSpaces; tile++ {
 		if tile >= len(floor) {
-			lineString = fmt.Sprintf("%s {empty}", lineString)
+			lineString = fmt.Sprintf("%s {empty}(%d)", lineString, models.ScoreModifiers[tile])
 		} else {
 			lineString = fmt.Sprintf("%s %s", lineString, floor[tile])
 		}
 	}
+
 	fmt.Println(lineString)
 }

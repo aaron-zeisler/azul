@@ -50,7 +50,7 @@ func (p Player) String() string {
 type Board struct {
 	Score        int //TODO: Make this the score track, then create a Score() function that calculates ScoreTrack - Floor
 	PatternLines map[int][]Tile
-	Floor        []Tile //TODO: Add score modifiers to the floor spaces
+	Floor        []FloorSpace //TODO: Add score modifiers to the floor spaces
 	//Wall
 }
 
@@ -86,7 +86,7 @@ func (b *Board) PlaceTiles(patternLineNumber int, tiles []Tile) error {
 }
 
 func (b *Board) ResetFloor() {
-	b.Floor = make([]Tile, 0, NumFloorSpaces)
+	b.Floor = make([]FloorSpace, 0, NumFloorSpaces)
 }
 
 func (b *Board) AddToFloor(tiles []Tile) error {
@@ -98,7 +98,7 @@ func (b *Board) AddToFloor(tiles []Tile) error {
 			// If there are more tiles than floor spaces, just throw out the extra tiles
 			continue
 		} else {
-			b.Floor = append(b.Floor, tile)
+			b.Floor = append(b.Floor, FloorSpace{Tile: tile, ScoreModifier: ScoreModifiers[currentTiles]})
 			currentTiles++
 		}
 	}
@@ -109,10 +109,21 @@ func (b *Board) AddToFloor(tiles []Tile) error {
 const NumFloorSpaces = 7
 const NumPatternLines = 5
 
-/*
 type FloorSpace struct {
+	Tile
 	ScoreModifier int
-	HasTile       bool
-	Tile          Tile
 }
-*/
+
+var ScoreModifiers = map[int]int{
+	0: -1,
+	1: -1,
+	2: -2,
+	3: -2,
+	4: -2,
+	5: -3,
+	6: -3,
+}
+
+func (f FloorSpace) String() string {
+	return fmt.Sprintf("%v(%d)", f.Tile, f.ScoreModifier)
+}
