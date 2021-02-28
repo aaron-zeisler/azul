@@ -62,7 +62,7 @@ func (tc *TileCollection) DrawRandomTile() (Tile, error) {
 	selectedTile := tc.Tiles[selectedIndex]
 
 	// Remove that tile from the slice
-	removeTileFromSlice(tc.Tiles, selectedIndex)
+	tc.Tiles = removeTileFromSlice(tc.Tiles, selectedIndex)
 
 	return selectedTile, nil
 }
@@ -137,9 +137,7 @@ func removeTileFromSlice(tiles []Tile, tileIndex int) []Tile {
 	tileCount := len(tiles)
 
 	tiles[tileCount-1], tiles[tileIndex] = tiles[tileIndex], tiles[tileCount-1]
-	tiles = tiles[:tileCount-1]
-
-	return tiles
+	return tiles[:tileCount-1]
 }
 
 type Tile struct {

@@ -10,6 +10,22 @@ import (
 	"github.com/aaron-zeisler/azul/internal/models"
 )
 
+type PlaceFactoryTilesResponse struct {
+	PatternLineNumber int
+}
+
+func PromptToPlaceFactoryTiles() (PlaceFactoryTilesResponse, error) {
+	response := PlaceFactoryTilesResponse{}
+
+	patternLineNumber, err := PromptForInt("Which line would you like to place the tiles on?")
+	if err != nil {
+		return response, err
+	}
+	response.PatternLineNumber = patternLineNumber
+
+	return response, nil
+}
+
 type DrawFactoryTilesResponse struct {
 	DrawSourceType models.DrawSourceType
 	FactoryNumber  int
@@ -73,10 +89,12 @@ func PromptForNewPlayers(config models.GameConfig) (NewPlayersResponse, error) {
 			return response, err
 		}
 
-		player := models.Player{
-			Name:          playerName,
-			IsFirstPlayer: i == 0,
+		opts := make([]models.NewPlayerOption, 0)
+		if i == 0 {
+			opts = append(opts, models.FirstPlayer())
 		}
+		player := models.NewPlayer(playerName, opts...)
+
 		response.Players[i] = player
 	}
 
@@ -116,6 +134,14 @@ func DisplayGameState(game *models.Game) {
 	fmt.Println("PLAYERS:")
 	for i := 0; i < len(game.Players); i++ {
 		fmt.Printf("Player #%d: %s\n", i, game.Players[i])
+
+		fmt.Println("Game Board:")
+
+		// Print the pattern lines
+		printPatternLines(game.Players[i].Board)
+
+		// Print the floor
+		printFloor(game.Players[i].Board.Floor)
 	}
 	fmt.Println()
 
@@ -127,4 +153,34 @@ func DisplayGameState(game *models.Game) {
 	// Print the tiles in center of the table
 	fmt.Printf("Center of the Table: %s\n", game.CenterOfTheTable.Tiles)
 	fmt.Println()
+}
+
+func printPatternLines(board *models.Board) {
+	fmt.Println("Pattern Lines:")
+	//fmt.Printf("%v\n", board.PatternLines)
+
+	for line := 0; line < models.NumPatternLines; line++ {
+		lineString := fmt.Sprintf("%d", line)
+		for tile := 0; tile <= line; tile++ {
+			if tile >= len(board.PatternLines[line]) {
+				lineString = fmt.Sprintf("%s {empty}", lineString)
+			} else {
+				lineString = fmt.Sprintf("%s %s", lineString, board.PatternLines[line][tile])
+			}
+		}
+		fmt.Println(lineString)
+	}
+}
+
+func printFloor(floor []models.Tile) {
+	lineString := "Floor:"
+
+	for tile := 0; tile < models.NumFloorSpaces; tile++ {
+		if tile >= len(floor) {
+			lineString = fmt.Sprintf("%s {empty}", lineString)
+		} else {
+			lineString = fmt.Sprintf("%s %s", lineString, floor[tile])
+		}
+	}
+	fmt.Println(lineString)
 }

@@ -62,10 +62,7 @@ func WithConfig(config GameConfig) NewGameOption {
 func WithPlayers(players map[int]Player) NewGameOption {
 	return func(g *Game) {
 		for i := 0; i < len(players); i++ {
-			g.Players[i] = Player{
-				Name:          players[i].Name,
-				IsFirstPlayer: players[i].IsFirstPlayer,
-			}
+			g.Players[i] = players[i]
 		}
 	}
 }
