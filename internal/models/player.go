@@ -48,17 +48,21 @@ func (p Player) String() string {
 }
 
 type Board struct {
-	Score        int //TODO: Make this the score track, then create a Score() function that calculates ScoreTrack - Floor
+	Score        int
 	PatternLines map[int][]Tile
-	Floor        []FloorSpace //TODO: Add score modifiers to the floor spaces
-	//Wall
+	Floor        []FloorSpace
+	Wall         [][]WallSpace
 }
 
 func (b *Board) ResetPatternLines() {
 	b.PatternLines = make(map[int][]Tile)
 	for i := 0; i < NumPatternLines; i++ {
-		b.PatternLines[i] = make([]Tile, 0, i+1)
+		b.ResetPatternLine(i)
 	}
+}
+
+func (b *Board) ResetPatternLine(rowNumber int) {
+	b.PatternLines[rowNumber] = make([]Tile, 0, rowNumber+1)
 }
 
 func (b *Board) PlaceTiles(patternLineNumber int, tiles []Tile) error {
@@ -98,7 +102,7 @@ func (b *Board) AddToFloor(tiles []Tile) error {
 			// If there are more tiles than floor spaces, just throw out the extra tiles
 			continue
 		} else {
-			b.Floor = append(b.Floor, FloorSpace{Tile: tile, ScoreModifier: ScoreModifiers[currentTiles]})
+			b.Floor = append(b.Floor, FloorSpace{Tile: tile, ScoreModifier: FloorScoreModifiers[currentTiles]})
 			currentTiles++
 		}
 	}
@@ -114,7 +118,7 @@ type FloorSpace struct {
 	ScoreModifier int
 }
 
-var ScoreModifiers = map[int]int{
+var FloorScoreModifiers = map[int]int{
 	0: -1,
 	1: -1,
 	2: -2,
@@ -126,4 +130,150 @@ var ScoreModifiers = map[int]int{
 
 func (f FloorSpace) String() string {
 	return fmt.Sprintf("%v(%d)", f.Tile, f.ScoreModifier)
+}
+
+type WallSpace struct {
+	Tile
+	HasTile bool
+}
+
+func (w WallSpace) String() string {
+	if w.HasTile {
+		return fmt.Sprintf("%s", w.Tile)
+	} else {
+		return "{empty}"
+	}
+}
+
+var wallLayout = [][]Tile{
+	{{Color: Blue}, {Color: Orange}, {Color: Red}, {Color: Black}, {Color: White}},
+	{{Color: White}, {Color: Blue}, {Color: Orange}, {Color: Red}, {Color: Black}},
+	{{Color: Black}, {Color: White}, {Color: Blue}, {Color: Orange}, {Color: Red}},
+	{{Color: Red}, {Color: Black}, {Color: White}, {Color: Blue}, {Color: Orange}},
+	{{Color: Orange}, {Color: Red}, {Color: Black}, {Color: White}, {Color: Blue}},
+}
+
+func (b *Board) ResetWall() {
+	b.Wall = make([][]WallSpace, 5)
+
+	for i := 0; i < len(wallLayout); i++ {
+		b.Wall[i] = make([]WallSpace, 5)
+		for j := 0; j < len(wallLayout[i]); j++ {
+			b.Wall[i][j].Tile = wallLayout[i][j]
+		}
+	}
+}
+
+func (b *Board) MoveTileToWall(tile Tile, rowNumber int) {
+	for i := 0; i < len(b.Wall[rowNumber]); i++ {
+		if b.Wall[rowNumber][i].Color == tile.Color {
+			b.Wall[rowNumber][i].HasTile = true
+			return
+		}
+	}
+}
+
+func (b *Board) ScorePatternLines() {
+	// Iterate through each pattern line
+	// If the pattern line if full, move a tile of that color to the wall
+	// Score the new tile in the wall
+	// Discard all the other tiles and reset the pattern line
+}
+
+type WallScore struct {
+	Score int
+	Tiles []WallCoordinate
+}
+
+type WallCoordinate struct {
+	Row int
+	Col int
+}
+
+// Calculate the score for a single tile placed into the wall
+// This function returns the total score, along with a list of all the
+// sets of linked tiles that contributed to the score.
+func (b *Board) ScoreTile(coord WallCoordinate) WallScore {
+	result := WallScore{
+		Tiles: make([]WallCoordinate, 0),
+	}
+
+	rows := len(wallLayout)
+	cols := len(wallLayout[0])
+
+	// Add the scoring tile to the result
+	result.Tiles = append(result.Tiles, coord)
+
+	// Calculate the score for horizontal adjacent tiles
+	horizontalTiles := make([]WallCoordinate, 0)
+
+	// Count the adjacent tiles to the right
+	if coord.Col < cols-1 {
+		for i := coord.Col + 1; i < cols; i++ {
+			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", coord.Row, i, b.Wall[coord.Row][i].HasTile)
+			if b.Wall[coord.Row][i].HasTile {
+				horizontalTiles = append(horizontalTiles, WallCoordinate{Row: coord.Row, Col: i})
+			} else {
+				break
+			}
+		}
+	}
+
+	// Count the adjacent tiles to the left
+	if coord.Col > 0 {
+		for i := coord.Col - 1; i >= 0; i-- {
+			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", coord.Row, i, b.Wall[coord.Row][i].HasTile)
+			if b.Wall[coord.Row][i].HasTile {
+				horizontalTiles = append(horizontalTiles, WallCoordinate{Row: coord.Row, Col: i})
+			} else {
+				break
+			}
+		}
+	}
+
+	// If there were adjacent tiles, add the tiles and score to the result
+	if len(horizontalTiles) > 0 {
+		result.Tiles = append(result.Tiles, horizontalTiles...)
+		result.Score += len(horizontalTiles) + 1
+	}
+
+	// Calculate the score for vertical adjacent tiles
+	verticalTiles := make([]WallCoordinate, 0)
+
+	// Count the adjacent tiles below
+	if coord.Row < rows-1 {
+		for i := coord.Row + 1; i < rows; i++ {
+			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", i, coord.Col, b.Wall[i][coord.Col].HasTile)
+			if b.Wall[i][coord.Col].HasTile {
+				verticalTiles = append(verticalTiles, WallCoordinate{Row: i, Col: coord.Col})
+			} else {
+				break
+			}
+		}
+	}
+
+	// Count the adjacent tiles above
+	if coord.Row > 0 {
+		for i := coord.Row - 1; i >= 0; i-- {
+			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", i, coord.Col, b.Wall[i][coord.Col].HasTile)
+			if b.Wall[i][coord.Col].HasTile {
+				verticalTiles = append(verticalTiles, WallCoordinate{Row: i, Col: coord.Col})
+			} else {
+				break
+			}
+		}
+	}
+
+	// If there were adjacent tiles, add the specified tile
+	if len(verticalTiles) > 0 {
+		result.Tiles = append(result.Tiles, verticalTiles...)
+		result.Score += len(verticalTiles) + 1
+	}
+
+	// If the tile doesn't have any adjacent tiles, it's worth 1 point
+	if len(result.Tiles) == 1 {
+		result.Score = 1
+	}
+
+	return result
 }

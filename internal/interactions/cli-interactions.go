@@ -64,7 +64,7 @@ type NewPlayersResponse struct {
 	Players map[int]models.Player
 }
 
-//TODO: Separate prompting from validation
+//TODO: Separate prompting from validation and object creation
 func PromptForNewPlayers(config models.GameConfig) (NewPlayersResponse, error) {
 	response := NewPlayersResponse{
 		Players: make(map[int]models.Player),
@@ -177,7 +177,7 @@ func printFloor(floor []models.FloorSpace) {
 
 	for tile := 0; tile < models.NumFloorSpaces; tile++ {
 		if tile >= len(floor) {
-			lineString = fmt.Sprintf("%s {empty}(%d)", lineString, models.ScoreModifiers[tile])
+			lineString = fmt.Sprintf("%s {empty}(%d)", lineString, models.FloorScoreModifiers[tile])
 		} else {
 			lineString = fmt.Sprintf("%s %s", lineString, floor[tile])
 		}

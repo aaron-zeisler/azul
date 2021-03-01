@@ -45,8 +45,8 @@ func NewGame(opts ...NewGameOption) *Game {
 		opt(g)
 	}
 
-	g.InitBag()
-	g.InitFactories()
+	g.ResetBag()
+	g.ResetFactories()
 
 	return g
 }
@@ -67,7 +67,7 @@ func WithPlayers(players map[int]Player) NewGameOption {
 	}
 }
 
-func (g *Game) InitFactories() {
+func (g *Game) ResetFactories() {
 	numFactories := g.Config.PlayersToFactoriesMap[len(g.Players)]
 	g.Factories = make(map[int]*Factory, numFactories)
 
@@ -85,14 +85,14 @@ func (g *Game) InitFactories() {
 	}
 }
 
-func (g *Game) InitBag() {
+func (g *Game) ResetBag() {
 	g.Bag = NewBag()
 
 	var tileCounter int
 	for _, color := range g.Config.TileColors {
 		for i := 0; i < g.Config.TilesPerColor; i++ {
 			g.Bag.AddTile(Tile{Color: color})
-			tileCounter += 1
+			tileCounter++
 		}
 	}
 }
