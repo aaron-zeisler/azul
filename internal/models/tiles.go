@@ -90,7 +90,7 @@ func (tc *TileCollection) DrawAllTilesByColor(color TileColor) ([]Tile, error) {
 
 	// Start at the end of the slice and work backwards
 	for i := len(tc.Tiles) - 1; i >= 0; i-- {
-		if tc.Tiles[i].Color == color {
+		if tc.Tiles[i].Color == color || tc.Tiles[i].Color == FirstPlayerTile { // If the 1st player tile is in the center, then draw it along with all the other tiles
 			// Add the tile to the function's result
 			result = append(result, tc.Tiles[i])
 			// Remove the tile from the fatory
@@ -147,11 +147,12 @@ type Tile struct {
 type TileColor string
 
 const (
-	Orange TileColor = "orange"
-	Blue   TileColor = "blue"
-	White  TileColor = "white"
-	Black  TileColor = "black"
-	Red    TileColor = "red"
+	Orange          TileColor = "orange"
+	Blue            TileColor = "blue"
+	White           TileColor = "white"
+	Black           TileColor = "black"
+	Red             TileColor = "red"
+	FirstPlayerTile TileColor = "1stplayer"
 )
 
 func (t TileColor) String() string {

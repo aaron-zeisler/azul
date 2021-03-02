@@ -37,9 +37,8 @@ type Game struct {
 
 func NewGame(opts ...NewGameOption) *Game {
 	g := &Game{
-		Config:           DefaultGameConfig,
-		Players:          make(map[int]Player),
-		CenterOfTheTable: NewTileCollection(),
+		Config:  DefaultGameConfig,
+		Players: make(map[int]Player),
 	}
 
 	for _, opt := range opts {
@@ -48,6 +47,7 @@ func NewGame(opts ...NewGameOption) *Game {
 
 	g.ResetBag()
 	g.ResetFactories()
+	g.ResetCenterOfTheTable()
 
 	return g
 }
@@ -96,4 +96,9 @@ func (g *Game) ResetBag() {
 			tileCounter++
 		}
 	}
+}
+
+func (g *Game) ResetCenterOfTheTable() {
+	g.CenterOfTheTable = NewTileCollection()
+	g.CenterOfTheTable.AddTile(Tile{Color: FirstPlayerTile})
 }

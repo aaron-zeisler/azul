@@ -16,15 +16,15 @@ func NewPlayer(name string, opts ...NewPlayerOption) Player {
 		Board: &Board{},
 	}
 
+	for _, opt := range opts {
+		p = opt(p)
+	}
+
 	// Create the pattern lines on the board
 	p.Board.ResetPatternLines()
 
 	// Reset the floor
 	p.Board.ResetFloor()
-
-	for _, opt := range opts {
-		p = opt(p)
-	}
 
 	return p
 }
@@ -76,7 +76,9 @@ func (b *Board) PlaceTiles(patternLineNumber int, tiles []Tile) error {
 	}
 
 	for _, tile := range tiles {
-		if currentTiles >= maxTiles {
+		// If the pattern line is full, place the tile on the Floor instead
+		// Also, if this is the 1st player tile, place it on the floor
+		if currentTiles >= maxTiles || tile.Color == FirstPlayerTile {
 			if err := b.AddToFloor([]Tile{tile}); err != nil {
 				return err
 			}
@@ -181,6 +183,7 @@ func (b *Board) MoveTileToWall(tile Tile, rowNumber int) WallCoordinate {
 	return coord
 }
 
+// Move tiles from the pattern lines to the wall, score the tiles, and reset the pattern lines
 func (b *Board) ScorePatternLines() {
 	// Iterate through each pattern line
 	for i := 0; i < NumPatternLines; i++ {
@@ -195,6 +198,14 @@ func (b *Board) ScorePatternLines() {
 			b.ResetPatternLine(i)
 		}
 	}
+}
+
+// Score and reset the floor
+func (b *Board) ScoreFloor() {
+	for _, tile := range b.Floor {
+		b.Score -= tile.ScoreModifier
+	}
+	b.ResetFloor()
 }
 
 type WallScore struct {
