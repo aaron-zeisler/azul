@@ -164,20 +164,37 @@ func (b *Board) ResetWall() {
 	}
 }
 
-func (b *Board) MoveTileToWall(tile Tile, rowNumber int) {
+func (b *Board) MoveTileToWall(tile Tile, rowNumber int) WallCoordinate {
+	// Return the coordinate where the tile was placed on the wall
+	coord := WallCoordinate{Row: rowNumber}
+
+	// Find the coordinate
 	for i := 0; i < len(b.Wall[rowNumber]); i++ {
 		if b.Wall[rowNumber][i].Color == tile.Color {
-			b.Wall[rowNumber][i].HasTile = true
-			return
+			coord.Col = i
+			break
 		}
 	}
+
+	// Set the wall tile's HasTile property to true
+	b.Wall[coord.Row][coord.Col].HasTile = true
+	return coord
 }
 
 func (b *Board) ScorePatternLines() {
 	// Iterate through each pattern line
-	// If the pattern line if full, move a tile of that color to the wall
-	// Score the new tile in the wall
-	// Discard all the other tiles and reset the pattern line
+	for i := 0; i < NumPatternLines; i++ {
+		// If the pattern line if full...
+		if len(b.PatternLines[i]) == i+1 {
+			// Move a tile of that color to the wall
+			wallCoord := b.MoveTileToWall(b.PatternLines[i][i], i)
+			// Score the new tile in the wall
+			wallScore := b.ScoreTile(wallCoord)
+			b.Score += wallScore.Score
+			// Discard all the other tiles and reset the pattern line
+			b.ResetPatternLine(i)
+		}
+	}
 }
 
 type WallScore struct {

@@ -32,6 +32,7 @@ type Game struct {
 	Factories        map[int]*Factory
 	CenterOfTheTable *TileCollection
 	Bag              *Bag
+	//DiscardPile      []Tile
 }
 
 func NewGame(opts ...NewGameOption) *Game {

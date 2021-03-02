@@ -24,7 +24,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 1,
 					Tiles: []WallCoordinate{{Row: 2, Col: 3}},
 				},
@@ -38,7 +38,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 1,
 					Tiles: []WallCoordinate{{Row: 2, Col: 3}},
 				},
@@ -52,7 +52,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 2,
 					Tiles: []WallCoordinate{{Row: 2, Col: 2}, {Row: 2, Col: 3}},
 				},
@@ -66,7 +66,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 2,
 					Tiles: []WallCoordinate{{Row: 2, Col: 4}, {Row: 2, Col: 3}},
 				},
@@ -80,7 +80,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 2,
 					Tiles: []WallCoordinate{{Row: 1, Col: 3}, {Row: 2, Col: 3}},
 				},
@@ -94,7 +94,7 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 2,
 					Tiles: []WallCoordinate{{Row: 3, Col: 3}, {Row: 2, Col: 3}},
 				},
@@ -108,9 +108,37 @@ func TestBoard_ScoreTile(t *testing.T) {
 				scoringTile: WallCoordinate{Row: 2, Col: 3},
 			},
 			expected{
-				WallScore{
+				result: WallScore{
 					Score: 3,
 					Tiles: []WallCoordinate{{Row: 2, Col: 2}, {Row: 2, Col: 4}, {Row: 2, Col: 3}},
+				},
+			},
+		},
+		"Three in a row vertically": {
+			state{
+				filledWallTiles: []WallCoordinate{
+					{Row: 1, Col: 3}, {Row: 3, Col: 3},
+				},
+				scoringTile: WallCoordinate{Row: 2, Col: 3},
+			},
+			expected{
+				result: WallScore{
+					Score: 3,
+					Tiles: []WallCoordinate{{Row: 1, Col: 3}, {Row: 2, Col: 3}, {Row: 3, Col: 3}},
+				},
+			},
+		},
+		"2 horizontally and 4 vertically": {
+			state{
+				filledWallTiles: []WallCoordinate{
+					{Row: 2, Col: 4}, {Row: 0, Col: 3}, {Row: 1, Col: 3}, {Row: 3, Col: 3},
+				},
+				scoringTile: WallCoordinate{Row: 2, Col: 3},
+			},
+			expected{
+				result: WallScore{
+					Score: 6,
+					Tiles: []WallCoordinate{{Row: 2, Col: 3}, {Row: 2, Col: 4}, {Row: 0, Col: 3}, {Row: 1, Col: 3}, {Row: 3, Col: 3}},
 				},
 			},
 		},
