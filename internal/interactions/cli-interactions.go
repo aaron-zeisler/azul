@@ -131,14 +131,17 @@ func PromptForInt(prompt string) (int, error) {
 
 func DisplayGameState(game *models.Game) {
 	// Print out the players and their boards
-	fmt.Println("PLAYERS:")
 	for i := 0; i < len(game.Players); i++ {
-		fmt.Printf("Player #%d: %s\n", i, game.Players[i])
+		fmt.Println()
+		fmt.Printf("PLAYER #%d: %s\n", i, game.Players[i])
 
 		fmt.Println("Game Board:")
 
 		// Print the pattern lines
 		printPatternLines(game.Players[i].Board)
+
+		// Print the player's wall
+		printWall(game.Players[i].Board.Wall)
 
 		// Print the floor
 		printFloor(game.Players[i].Board.Floor)
@@ -163,7 +166,7 @@ func printPatternLines(board *models.Board) {
 		lineString := fmt.Sprintf("%d", line)
 		for tile := 0; tile <= line; tile++ {
 			if tile >= len(board.PatternLines[line]) {
-				lineString = fmt.Sprintf("%s {empty}", lineString)
+				lineString = fmt.Sprintf("%s {%6s}", lineString, "empty")
 			} else {
 				lineString = fmt.Sprintf("%s %s", lineString, board.PatternLines[line][tile])
 			}
@@ -177,11 +180,23 @@ func printFloor(floor []models.FloorSpace) {
 
 	for tile := 0; tile < models.NumFloorSpaces; tile++ {
 		if tile >= len(floor) {
-			lineString = fmt.Sprintf("%s {empty}(%d)", lineString, models.FloorScoreModifiers[tile])
+			lineString = fmt.Sprintf("%s {%6s}(%d)", lineString, "empty", models.FloorScoreModifiers[tile])
 		} else {
 			lineString = fmt.Sprintf("%s %s", lineString, floor[tile])
 		}
 	}
 
 	fmt.Println(lineString)
+}
+
+func printWall(wall [][]models.WallSpace) {
+	fmt.Println("Wall:")
+
+	for i := 0; i < len(wall); i++ {
+		var row string
+		for j := 0; j < len(wall[i]); j++ {
+			row = fmt.Sprintf("%s %s", row, wall[i][j])
+		}
+		fmt.Println(row)
+	}
 }

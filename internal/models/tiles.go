@@ -156,7 +156,7 @@ const (
 )
 
 func (t TileColor) String() string {
-	return string(t)
+	return fmt.Sprintf("%6s", string(t))
 }
 
 type DrawSourceType string

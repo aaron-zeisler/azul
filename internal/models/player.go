@@ -26,6 +26,9 @@ func NewPlayer(name string, opts ...NewPlayerOption) Player {
 	// Reset the floor
 	p.Board.ResetFloor()
 
+	// Reset the Wall
+	p.Board.ResetWall()
+
 	return p
 }
 
@@ -39,7 +42,7 @@ func FirstPlayer() NewPlayerOption {
 }
 
 func (p Player) String() string {
-	s := fmt.Sprintf("Name: %s - Score: %d", p.Name, p.Board.Score)
+	s := fmt.Sprintf("%s - %d Points", p.Name, p.Board.Score)
 	if p.IsFirstPlayer {
 		s = fmt.Sprintf("%s - First Player", s)
 	}
@@ -62,6 +65,12 @@ func (b *Board) ResetPatternLines() {
 }
 
 func (b *Board) ResetPatternLine(rowNumber int) {
+	if len(b.PatternLines[rowNumber]) > 0 {
+		for i := 0; i < len(b.PatternLines[rowNumber]); i++ {
+			//TODO: This function needs to be at the game level to access game.DiscardPile
+		}
+	}
+
 	b.PatternLines[rowNumber] = make([]Tile, 0, rowNumber+1)
 }
 
@@ -92,6 +101,19 @@ func (b *Board) PlaceTiles(patternLineNumber int, tiles []Tile) error {
 }
 
 func (b *Board) ResetFloor() {
+	if len(b.Floor) > 0 {
+		for i := 0; i < len(b.Floor); i++ {
+			//TODO: This function needs to be at the game level to access game.DiscardPile
+			/*
+				if b.Floor[i].Color == FirstPlayerTile {
+					//TODO: Set the first player attribute, and move the tile to the center of the table
+				} else {
+					//TODO: Discard this tile
+				}
+			*/
+		}
+	}
+
 	b.Floor = make([]FloorSpace, 0, NumFloorSpaces)
 }
 
@@ -139,12 +161,16 @@ type WallSpace struct {
 	HasTile bool
 }
 
+// String is the string representation of a wall space.
+// The format results in "{  blue [x]}" for example, there the color is
+// printed with a 6-space padding (to match the longest color name, "orange"),
+// and an "x" will be printed in the brackets if the space has a tile on it.
 func (w WallSpace) String() string {
+	var hasTileCharacter string
 	if w.HasTile {
-		return fmt.Sprintf("%s", w.Tile)
-	} else {
-		return "{empty}"
+		hasTileCharacter = "x"
 	}
+	return fmt.Sprintf("{%6s [%1s]}", w.Color, hasTileCharacter)
 }
 
 var wallLayout = [][]Tile{
@@ -191,6 +217,7 @@ func (b *Board) ScorePatternLines() {
 		if len(b.PatternLines[i]) == i+1 {
 			// Move a tile of that color to the wall
 			wallCoord := b.MoveTileToWall(b.PatternLines[i][i], i)
+			removeTileFromSlice(b.PatternLines[i], i)
 			// Score the new tile in the wall
 			wallScore := b.ScoreTile(wallCoord)
 			b.Score += wallScore.Score
@@ -238,7 +265,6 @@ func (b *Board) ScoreTile(coord WallCoordinate) WallScore {
 	// Count the adjacent tiles to the right
 	if coord.Col < cols-1 {
 		for i := coord.Col + 1; i < cols; i++ {
-			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", coord.Row, i, b.Wall[coord.Row][i].HasTile)
 			if b.Wall[coord.Row][i].HasTile {
 				horizontalTiles = append(horizontalTiles, WallCoordinate{Row: coord.Row, Col: i})
 			} else {
@@ -250,7 +276,6 @@ func (b *Board) ScoreTile(coord WallCoordinate) WallScore {
 	// Count the adjacent tiles to the left
 	if coord.Col > 0 {
 		for i := coord.Col - 1; i >= 0; i-- {
-			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", coord.Row, i, b.Wall[coord.Row][i].HasTile)
 			if b.Wall[coord.Row][i].HasTile {
 				horizontalTiles = append(horizontalTiles, WallCoordinate{Row: coord.Row, Col: i})
 			} else {
@@ -271,7 +296,6 @@ func (b *Board) ScoreTile(coord WallCoordinate) WallScore {
 	// Count the adjacent tiles below
 	if coord.Row < rows-1 {
 		for i := coord.Row + 1; i < rows; i++ {
-			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", i, coord.Col, b.Wall[i][coord.Col].HasTile)
 			if b.Wall[i][coord.Col].HasTile {
 				verticalTiles = append(verticalTiles, WallCoordinate{Row: i, Col: coord.Col})
 			} else {
@@ -283,7 +307,6 @@ func (b *Board) ScoreTile(coord WallCoordinate) WallScore {
 	// Count the adjacent tiles above
 	if coord.Row > 0 {
 		for i := coord.Row - 1; i >= 0; i-- {
-			fmt.Printf("Looking at {%d,%d}: HasTile: %t\n", i, coord.Col, b.Wall[i][coord.Col].HasTile)
 			if b.Wall[i][coord.Col].HasTile {
 				verticalTiles = append(verticalTiles, WallCoordinate{Row: i, Col: coord.Col})
 			} else {

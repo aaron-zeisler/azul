@@ -32,7 +32,7 @@ type Game struct {
 	Factories        map[int]*Factory
 	CenterOfTheTable *TileCollection
 	Bag              *Bag
-	//DiscardPile      []Tile
+	DiscardPile      []Tile
 }
 
 func NewGame(opts ...NewGameOption) *Game {
@@ -101,4 +101,11 @@ func (g *Game) ResetBag() {
 func (g *Game) ResetCenterOfTheTable() {
 	g.CenterOfTheTable = NewTileCollection()
 	g.CenterOfTheTable.AddTile(Tile{Color: FirstPlayerTile})
+}
+
+func (g *Game) ScoreRound() {
+	for _, player := range g.Players {
+		player.Board.ScorePatternLines()
+		player.Board.ScoreFloor()
+	}
 }
